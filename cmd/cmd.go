@@ -9,6 +9,7 @@ import (
 	"net/smtp"
 	"os"
 	"os/user"
+        "strings"
 )
 
 import flag "github.com/spf13/pflag"
