@@ -46,6 +46,7 @@ func Go() {
 	flag.BoolP("long-i", "i", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolP("long-o", "o", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolP("long-t", "t", true, "Ignored. This flag exists for sendmail compatibility.")
+        flag.BoolP("long-bs", "bs", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "Verbose mode (sends debug output to stderr)")
 	flag.Parse()
 
@@ -71,7 +72,37 @@ func Go() {
 	if len(recip) == 0 {
 		// We only need to parse the message to get a recipient if none where
 		// provided on the command line.
-		recip = append(recip, msg.Header.Get("To"))
+                // REFACTORING: needs refactoring
+                recipients := strings.Split(msg.Header.Get("To"), ",")
+		for i := range recipients {
+			recipient := strings.TrimSpace(recipients[i])
+			parsed, err := mail.ParseAddress(recipient)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error parsing email recipient")
+		                os.Exit(11)
+			}
+			recip = append(recip, parsed.Address)
+		}
+                recipients = strings.Split(msg.Header.Get("Cc"), ",")
+		for i := range recipients {
+			recipient := strings.TrimSpace(recipients[i])
+			parsed, err := mail.ParseAddress(recipient)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error parsing email recipient")
+		                os.Exit(11)
+			}
+			recip = append(recip, parsed.Address)
+		}
+                recipients = strings.Split(msg.Header.Get("Bcc"), ",")
+		for i := range recipients {
+			recipient := strings.TrimSpace(recipients[i])
+			parsed, err := mail.ParseAddress(recipient)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error parsing email recipient")
+		                os.Exit(11)
+			}
+			recip = append(recip, parsed.Address)
+		}
 	}
 
 	err = smtp.SendMail(smtpAddr, nil, fromAddr, recip, body)
