@@ -1,0 +1,5 @@
+github.com/mailhog/mhsendmail v0.2.0 h1:C5HUC4obHfXIkttLfGBUopYbsJmh+bnExGWHBpWQ8IA=
+github.com/mailhog/mhsendmail v0.2.0/go.mod h1:B0778+OoPEc5aEFqatEnSO4ZWl9FCTxvaY+c7OOQadM=
+github.com/ogier/pflag v0.0.1 h1:RW6JSWSu/RkSatfcLtogGfFgpim5p7ARQ10ECk5O750=
+github.com/ogier/pflag v0.0.1/go.mod h1:zkFki7tvTa0tafRvTBIZTvzYyAu6kQhPZFnshFFPE+g=
+github.com/spf13/pflag v0.0.0-20160427162146-cb88ea77998c/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
