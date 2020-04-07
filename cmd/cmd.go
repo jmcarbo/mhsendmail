@@ -10,6 +10,10 @@ import (
 	"os"
 	"os/user"
         "strings"
+    "github.com/emersion/go-message"
+        _ "github.com/emersion/go-message/charset"
+        "regexp"
+
 )
 
 import flag "github.com/spf13/pflag"
@@ -63,43 +67,82 @@ func Go() {
 		fmt.Fprintln(os.Stderr, "error reading stdin")
 		os.Exit(11)
 	}
+        fmt.Println(string(body))
 
-	msg, err := mail.ReadMessage(bytes.NewReader(body))
+	//msg, err := mail.ReadMessage(bytes.NewReader(body))
+        msg, err := message.Read(bytes.NewReader(body))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error parsing message body")
 		os.Exit(11)
 	}
 
 	if len(recip) == 0 {
+          re := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
 		// We only need to parse the message to get a recipient if none where
 		// provided on the command line.
                 // REFACTORING: needs refactoring
-                recipients := strings.Split(msg.Header.Get("To"), ",")
+                recipientss, err := msg.Header.Text("To")
+		if err != nil {
+		  fmt.Fprintln(os.Stderr, "error parsing email recipient header"+ err.Error())
+		  os.Exit(11)
+		}
+                recipients := strings.Split(recipientss, ",")
+                fmt.Printf("%+v\n", recipients)
 		for i := range recipients {
 			recipient := strings.TrimSpace(recipients[i])
+                        if len(recipient) == 0 {
+                          continue
+                        }
 			parsed, err := mail.ParseAddress(recipient)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "error parsing email recipient")
+                          if re.MatchString(recipient) {
+			    recip = append(recip, recipient)
+                          } else {
+                            fmt.Fprintf(os.Stderr, "[%s]\n", recipient)
+				fmt.Fprintln(os.Stderr, "error parsing email recipient To "+ err.Error())
+		                os.Exit(11)
+                          }
+			} else {
+			  recip = append(recip, parsed.Address)
+                        }
+		}
+
+                recipientss, err = msg.Header.Text("Cc")
+		if err != nil {
+		  fmt.Fprintln(os.Stderr, "error parsing email recipient "+ err.Error())
+		  os.Exit(11)
+		}
+                recipients = strings.Split(recipientss, ",")
+		for i := range recipients {
+			recipient := strings.TrimSpace(recipients[i])
+                        if len(recipient) == 0 {
+                          continue
+                        }
+			parsed, err := mail.ParseAddress(recipient)
+			if err != nil {
+                          fmt.Fprintln(os.Stderr, recipient)
+				fmt.Fprintln(os.Stderr, "error parsing email recipient Cc "+ err.Error())
 		                os.Exit(11)
 			}
 			recip = append(recip, parsed.Address)
 		}
-                recipients = strings.Split(msg.Header.Get("Cc"), ",")
-		for i := range recipients {
-			recipient := strings.TrimSpace(recipients[i])
-			parsed, err := mail.ParseAddress(recipient)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "error parsing email recipient")
-		                os.Exit(11)
-			}
-			recip = append(recip, parsed.Address)
+
+                recipientss, err = msg.Header.Text("Bcc")
+		if err != nil {
+		  fmt.Fprintln(os.Stderr, "error parsing email recipient Bcc"+ err.Error())
+		  os.Exit(11)
 		}
-                recipients = strings.Split(msg.Header.Get("Bcc"), ",")
+                recipients = strings.Split(recipientss, ",")
 		for i := range recipients {
 			recipient := strings.TrimSpace(recipients[i])
+                        if len(recipient) == 0 {
+                          continue
+                        }
 			parsed, err := mail.ParseAddress(recipient)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "error parsing email recipient")
+                          fmt.Fprintln(os.Stderr, recipient)
+				fmt.Fprintln(os.Stderr, "error parsing email recipient" + err.Error())
 		                os.Exit(11)
 			}
 			recip = append(recip, parsed.Address)

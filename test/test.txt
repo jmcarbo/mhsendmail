@@ -1,0 +1,9 @@
+To: nobody@example.com
+Subject: the subject
+From: webmaster@example.com
+Reply-To: webmaster@example.com
+X-Mailer: PHP/7.3.11
+
+hello
+
+
