@@ -47,7 +47,7 @@ func Go() {
 	flag.BoolP("long-i", "i", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolP("long-o", "o", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolP("long-t", "t", true, "Ignored. This flag exists for sendmail compatibility.")
-        flag.BoolP("long-bs", "bs", true, "Ignored. This flag exists for sendmail compatibility.")
+        flag.BoolP("long-bs", "b", true, "Ignored. This flag exists for sendmail compatibility.")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "Verbose mode (sends debug output to stderr)")
 	flag.Parse()
 
